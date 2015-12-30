@@ -3,22 +3,20 @@ package net.owl_black.tovmgr;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Polygon;
 import java.awt.geom.RoundRectangle2D;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.text.View;
 
 public class SmsBubble extends JPanel {
 
@@ -45,10 +43,13 @@ public class SmsBubble extends JPanel {
 	
 	/* Graphical resources. */
 	private JLabel lblDate;
+	private Insets insetTxt;
 	private JTextArea lblMessage;
-	private JPanel panText;
-	private Border bordersPan;
-	private int		pxTxtLength; 	
+	
+	private Polygon triangle;
+	private int triangle_dim = 21;
+	private int[] triangle_y_points;
+	
 	
 	/* Test function. */
 	public static void main(String[] args) {
@@ -82,53 +83,54 @@ public class SmsBubble extends JPanel {
 	}
 	
 	public SmsBubble(BubbleDirection direction, String messageText, String dateText) {
+		
 		//Default behavior
 		this.orientation 	= direction;
 		this.messageText 	= messageText; //Useful for line wrapping.
 		this.txtDate 		= "<html>" + dateText + "</html>";
 		
-	    this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+	    this.setLayout(new GridBagLayout());
 	    this.setDoubleBuffered(true);
 	    
-	    //Set style:
+	    //Set style & theme
 	    if(this.orientation == BubbleDirection.BBL_RECEIVED__RIGHT) {
 	    	clTime 		= new Color(132, 132, 132); //Grey
 	    	clBbl 		= new Color(255, 255, 255); //White
 		    clTxtBbl 	= Color.BLACK;
-		    bordersPan = BorderFactory.createEmptyBorder(1, 8, 10, 20); //top, left, bottom, right
-		    //this.add(Box.createHorizontalGlue());
+		    insetTxt	= new Insets(0, 6, 0, triangle_dim+4);
 	    } else {
 	    	clTime 		= new Color(159, 216, 188);
 	    	clBbl 		= new Color(15, 157, 88);   //Green
 		    clTxtBbl 	= Color.WHITE;
-		    bordersPan  = BorderFactory.createEmptyBorder(1, 28, 10, 8);
+		    insetTxt	= new Insets(0, triangle_dim+4, 0, 5);
 	    }
+	    this.setBackground(clConversationBg);
 	    
 	    fontDate = new Font("Calibri",1,10);
 	    fontTxt = new Font("Calibri",1,12);
-	    
-	    //Layout that holds the text and the date.
-  		panText = new JPanel(true); //Double buffered
-  		panText.setLayout(new BoxLayout(panText, BoxLayout.Y_AXIS));
-  		panText.setBackground(new Color(0,0,0,0)); //Set maximum transparency
   		
-  		//Create margin/padding around the text:
-  		panText.setBorder(bordersPan); 
+  		GridBagConstraints c = new GridBagConstraints();
   		
   		//Create the date
-  		lblDate = new JLabel(this.txtDate);
-  		lblDate.setAlignmentX(CENTER_ALIGNMENT);
+  		lblDate = new JLabel(this.txtDate, SwingConstants.CENTER);
   	    lblDate.setFont(fontDate);
   	    lblDate.setForeground(clTime);
-		lblDate.setDoubleBuffered(true); //TODO: check performances
-		System.out.println(lblDate.getPreferredSize().toString());
-		lblDate.setMaximumSize(lblDate.getPreferredSize());
-		lblDate.setMinimumSize(lblDate.getPreferredSize());
-		panText.add(lblDate);
+		
+		//Date label constraints
+		c.anchor = GridBagConstraints.PAGE_START;
+  	    c.fill = GridBagConstraints.HORIZONTAL;
+  	    c.gridwidth = GridBagConstraints.RELATIVE;
+  	    c.gridx = 0;
+		c.gridy = 0;
+		c.insets = insetTxt;
+		c.ipady = 5;
+		c.weightx = 1.0;
+		c.weighty = 0.0;
+  		
+		this.add(lblDate, c);
   		
   		//Create the text label
   	    lblMessage = new JTextArea(this.messageText);
-  	    //lblMessage.setAlignmentX(CENTER_ALIGNMENT);
   	    lblMessage.setEditable(false);
   	    lblMessage.setCursor(null);  
   	    lblMessage.setOpaque(false);  
@@ -137,32 +139,33 @@ public class SmsBubble extends JPanel {
   	    lblMessage.setWrapStyleWord(true);
   	    lblMessage.setFont(fontTxt);
   	    lblMessage.setForeground(clTxtBbl);
-  	    lblMessage.setDoubleBuffered(true);
-  	    //Set the maximum dimension of the bubble regarding the length of the text to display.
-  	    //This allows to get a better style for the bubble, avoiding having big bubble with small text inside.
-  	    pxTxtLength = lblMessage.getFontMetrics(fontTxt).stringWidth(messageText);
   	    
-  	   // if(pxTxtLength < lblMessage)
-  	    //	pxTxtLength = lblMessage.getFontMetrics(fontDate).stringWidth(dateText) + 15;
-  	    lblMessage.setMinimumSize(new Dimension(lblDate.getFontMetrics(fontDate).stringWidth(dateText)+4,0));
-  	    lblMessage.setMaximumSize(new Dimension(pxTxtLength+2, Integer.MAX_VALUE));
-  	    
-  	    System.out.println(pxTxtLength);
+  	    //Date label constraints
+  	    c.anchor = GridBagConstraints.NORTHWEST;
+  	    c.fill = GridBagConstraints.HORIZONTAL;
+  	    c.gridwidth = GridBagConstraints.RELATIVE;
+  	    c.gridx = 0;
+		c.gridy = 1;
+		c.insets = insetTxt;
+		c.ipady = 0;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
 
-  	    panText.add(lblMessage);
+		this.add(lblMessage, c);
+		
+  	    //Generate points for the triangle.
+  	    triangle_y_points = new int[] {1, 1, triangle_dim+1};
   	    
-  	    //this.add(comp)q
-  	    this.add(panText);
-  	    
-  	  
-  	    
-  	    //if(this.orientation == BubbleDirection.BBL_SENT__LEFT)
-  		//  this.add(Box.createHorizontalGlue());
+  	    //In case of left bubble, we don't need to recompute the triangle each time.
+  	    if(this.orientation == BubbleDirection.BBL_SENT__LEFT) {
+	    	int[] xPoints = {1, triangle_dim+1, triangle_dim+1};
+		    triangle = new Polygon(xPoints, triangle_y_points, xPoints.length);
+	    }
   	    
   	    //FOR DEBUG
   	    //lblDate.setBorder(BorderFactory.createLineBorder(Color.black, 1));
   	    //lblMessage.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-  	    //panText.setBorder(BorderFactory.createLineBorder(Color.blue, 1));
+  	    //this.setBorder(BorderFactory.createLineBorder(Color.blue, 1));
 	}
 	
 	public SmsBubble() {
@@ -178,75 +181,42 @@ public class SmsBubble extends JPanel {
 	}
 	
 	@Override
-	public void paint(Graphics g) {
+	public void paintComponent(Graphics g) {
 		
-		lblDate.setMaximumSize(lblDate.getPreferredSize());
-		panText.setMaximumSize(new Dimension(
-  	    		pxTxtLength + bordersPan.getBorderInsets(panText).left + bordersPan.getBorderInsets(panText).right+4,
-  	    		lblMessage.getPreferredSize().height+25));
-		
-		//Set constraints from the bubble
-		
-		Graphics2D graphBubble = (Graphics2D) g;
-		
-		//Get dimensions to create a re dimension relativeness bubble
-		Dimension dimPanel 		= this.getSize();
-		Dimension dimPanelMax 	= this.getMaximumSize();
-		
-		if(dimPanel.height > dimPanelMax.height)
-			dimPanel.height = dimPanelMax.height;
-		
-		if(dimPanel.width > dimPanelMax.width)
-			dimPanel.width = dimPanelMax.width;
-		
-		RoundRectangle2D roundedRectangle;
+		super.paintComponent(g);
+
+		//Get dimensions to create a re-dimension relativeness bubble
+		Dimension dimPanel = this.getSize();
 		
 		//Create the rectangle bubble
+		RoundRectangle2D roundedRectangle;
+		
 		if(this.orientation == BubbleDirection.BBL_RECEIVED__RIGHT) {
 			roundedRectangle = new RoundRectangle2D.Float(
-		    		1, 1, dimPanel.width-18, dimPanel.height, 8, 8); // x pos, y pos, rect width, rect height, corner round
+		    		1, 1, dimPanel.width-triangle_dim, dimPanel.height-2, 8, 8); // x pos, y pos, rect width, rect height, corner round
 		} else {
 			roundedRectangle = new RoundRectangle2D.Float(
-		    		18, 1, dimPanel.width-19, dimPanel.height, 8, 8); // x pos, y pos, rect width, rect height, corner round
+					triangle_dim-1, 1, dimPanel.width-triangle_dim-1, dimPanel.height-2, 8, 8); // x pos, y pos, rect width, rect height, corner round
 		}
 	    
-	    
+		Graphics2D graphBubble = (Graphics2D) g;
 	    graphBubble.setColor(clBbl);
 	    graphBubble.draw(roundedRectangle);
 	    graphBubble.fill(roundedRectangle);
 	    
-	    //Create the triangle TODO: make it parameterizable
-	    Polygon triangle;
-	    
+	    //Create the triangle shape. We only need to re-create it if the orientation is BBL_RECEIVED__RIGHT
 	    if(this.orientation == BubbleDirection.BBL_RECEIVED__RIGHT) {
-	    	int[] xPoints = {dimPanel.width-20, dimPanel.width, dimPanel.width-20};
-		    int[] yPoints = {1, 1, 21};
-		    triangle = new Polygon(xPoints, yPoints, xPoints.length);
-	    } else {
-	    	int[] xPoints = {1, 21, 21};
-		    int[] yPoints = {1, 1, 21};
-		    triangle = new Polygon(xPoints, yPoints, xPoints.length);
-	    }
+	    	int[] xPoints = {dimPanel.width-triangle_dim-1, dimPanel.width-1, dimPanel.width-triangle_dim-1};
+		    triangle = new Polygon(xPoints, triangle_y_points, xPoints.length);
+	    } 
 	    
 	    graphBubble.draw(triangle);
 	    graphBubble.fill(triangle);
 	    
-	    
-	    
-	    super.paint(g);
 	    //FOR DEBUG
 	    //graphics2.setColor(Color.BLUE);
 	};
 	
-	
-	//from https://tips4java.wordpress.com/2008/10/26/text-utilities/
-	public static int getWrappedLines(JTextArea component)
-	{
-		View view = component.getUI().getRootView(component).getView(0);
-		int preferredHeight = (int)view.getPreferredSpan(View.Y_AXIS);
-		int lineHeight = component.getFontMetrics( component.getFont() ).getHeight();
-		return preferredHeight / lineHeight;
-	}
 	
 	/*
 	 * Setters and getters
