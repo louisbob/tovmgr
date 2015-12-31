@@ -1,11 +1,19 @@
 package net.owl_black.tovmgr;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Rectangle;
 
-import javax.swing.Box;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.Scrollable;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import net.owl_black.tovmgr.SmsBubble.BubbleDirection;
 
@@ -13,10 +21,36 @@ public class MessagePanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
-	JPanel subMessagePan;
+	//from http://stackoverflow.com/questions/15783014/jtextarea-on-jpanel-inside-jscrollpane-does-not-resize-properly
+	private static class ScrollablePanel extends JPanel implements Scrollable{
+		private static final long serialVersionUID = 1L;
+
+		public Dimension getPreferredScrollableViewportSize() {
+	        return super.getPreferredSize(); //tell the JScrollPane that we want to be our 'preferredSize' - but later, we'll say that vertically, it should scroll.
+	    }
+
+	    public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+	        return 30;
+	    }
+
+	    public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+	        return 30;
+	    }
+
+	    public boolean getScrollableTracksViewportWidth() {
+	        return true;//track the width, and re-size as needed.
+	    }
+
+	    public boolean getScrollableTracksViewportHeight() {
+	        return false; //we don't want to track the height, because we want to scroll vertically.
+	    }
+	}
+	
+	ScrollablePanel subMessagePan;
+	
+	private int row_number;
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		
 		JFrame frame = new JFrame("MessagePanel test");
 		
@@ -25,100 +59,70 @@ public class MessagePanel extends JPanel {
 		frame.setBackground(new Color(238, 238, 238));
 		
 		JPanel pan = new MessagePanel();
-		pan.setLayout(new BoxLayout(pan, BoxLayout.Y_AXIS));
 		frame.add(pan);
-		
 		frame.setVisible(true);
-
 	}
 	
 	private void insertBubble(SmsBubble bub) {
-		JPanel pan = new JPanel();
-		pan.setLayout(new BoxLayout(pan, BoxLayout.X_AXIS));
+		GridBagConstraints c = new GridBagConstraints();
 		
+  	    c.gridx = 0;
+		c.gridy = row_number++;
+		c.ipady = 5;
+		c.weightx = 1.0;
+		c.weighty = 0.0;
 		
 		if(bub.getOrientation() == BubbleDirection.BBL_RECEIVED__RIGHT) {
-			pan.add(Box.createHorizontalGlue());
-			pan.add(bub);
+			c.anchor = GridBagConstraints.EAST;
 		} else {
-			pan.add(bub);
-			pan.add(Box.createHorizontalGlue());
+			c.anchor = GridBagConstraints.WEST;
 		}
 		
-		
 		//For DEBUG
-		//pan.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		//bub.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
-		//this.add(pan);
-		this.add(bub);
+		subMessagePan.add(bub, c);
 	}
-	SmsBubble bub;
+	
 	public MessagePanel() {
 		
+		SmsBubble bub;
 		
-		//this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		subMessagePan = new ScrollablePanel();
+		subMessagePan.setLayout(new GridBagLayout());
+		row_number = 0;
 		
-		 bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "Lorem ipsum dolor sit amet, test test", "Dec 10 10:52");
-		//bub.setAlignmentX(LEFT_ALIGNMENT);
-		//insertBubble(bub);
-		//lab = new JLabel("Test1 my super label");
-		//lab.set
+		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "Lorem ipsum dolor sit amet, test test", "Dec 10 10:52");
 		insertBubble(bub);
-		
 		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore", "Dec 10 10:52");
-		//bub.setAlignmentX(RIGHT_ALIGNMENT);
 		insertBubble(bub);
-		//insertBubble(new JLabel("Test2 eazfjezjfiopezjf zejfpzeofjkez fez pf"));
-		
-		
-		//this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "et dolore magna aliqua. Ut enim", "Dec 10 10:52");
+		insertBubble(bub);
+		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "occaecat", "Dec 10 10:52");
+		insertBubble(bub);
+		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "non proident, sunt in culpa qui officia deserunt", "Dec 10 10:52");
+		insertBubble(bub);
+		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT,"rud exercitation ullamco laboris nisi ut aliquip ex ea commodo c", "Dec 10 10:52");
+		insertBubble(bub);
+		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
+				+ "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
+				+ "aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat "
+				, "Dec 10 10:52");
+		insertBubble(bub);
 		
 		// Adding border with a title
-		/*
-		TitledBorder title = BorderFactory.createTitledBorder(
-				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED) , "Conversation");
+		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
+				"Conversation");
 		title.setTitleJustification(TitledBorder.CENTER);
-		this.setBorder(title);*/
-		
-		/*
-		
-		
-		
-		
-		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "et dolore magna aliqua. Ut enim", "Dec 10 10:52");
-		bub.setAlignmentX(LEFT_ALIGNMENT);
-		subMessagePan.add(bub);
-		
-		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "occaecat", "Dec 10 10:52");
-		bub.setAlignmentX(LEFT_ALIGNMENT);
-		subMessagePan.add(bub);
-		
-		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "non proident, sunt in culpa qui officia deserunt", "Dec 10 10:52");
-		bub.setAlignmentX(RIGHT_ALIGNMENT);
-		subMessagePan.add(bub);
-		
-		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT,"rud exercitation ullamco laboris nisi ut aliquip ex ea commodo c", "Dec 10 10:52");
-		bub.setAlignmentX(RIGHT_ALIGNMENT);
-		subMessagePan.add(bub);
-		*/
-
-        
+		this.setBorder(title);
 		
 		//Add a scroll bar to the pan
-		/*
 		JScrollPane scrollBar = new JScrollPane(subMessagePan);
-		scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollBar.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		//scrollBar.setBounds(50, 30, 300, 50);
-		//this.setMaximumSize(new Dimension(300, Integer.MAX_VALUE));
-		//subMessagePan.setPreferredSize(new Dimension(600, 40));
 		
-
-		// Add the scrollable conversation to the panel (parameter)
-		 * */
-		 
-		
-		//this.setMaximumSize(new Dimension(20, 20));
+		this.add(scrollBar);
 	}
 	
 	public void addMessage(String date, String message) {

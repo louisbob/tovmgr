@@ -11,6 +11,7 @@ import java.awt.Insets;
 import java.awt.Polygon;
 import java.awt.geom.RoundRectangle2D;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -45,6 +46,7 @@ public class SmsBubble extends JPanel {
 	private JLabel lblDate;
 	private Insets insetTxt;
 	private JTextArea lblMessage;
+	private int pxTxtLength;
 	
 	private Polygon triangle;
 	private int triangle_dim = 21;
@@ -55,7 +57,7 @@ public class SmsBubble extends JPanel {
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("SmsBubble test");
 		
-		frame.setSize(400, 200);
+		frame.setSize(600, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setBackground(new Color(238, 238, 238));
 		
@@ -97,12 +99,12 @@ public class SmsBubble extends JPanel {
 	    	clTime 		= new Color(132, 132, 132); //Grey
 	    	clBbl 		= new Color(255, 255, 255); //White
 		    clTxtBbl 	= Color.BLACK;
-		    insetTxt	= new Insets(0, 6, 0, triangle_dim+4);
+		    insetTxt	= new Insets(0, 8, 0, triangle_dim+8);
 	    } else {
 	    	clTime 		= new Color(159, 216, 188);
 	    	clBbl 		= new Color(15, 157, 88);   //Green
 		    clTxtBbl 	= Color.WHITE;
-		    insetTxt	= new Insets(0, triangle_dim+4, 0, 5);
+		    insetTxt	= new Insets(0, triangle_dim+8, 0, 8);
 	    }
 	    this.setBackground(clConversationBg);
 	    
@@ -139,6 +141,7 @@ public class SmsBubble extends JPanel {
   	    lblMessage.setWrapStyleWord(true);
   	    lblMessage.setFont(fontTxt);
   	    lblMessage.setForeground(clTxtBbl);
+  	    lblMessage.setMaximumSize(new Dimension(30, 30));
   	    
   	    //Date label constraints
   	    c.anchor = GridBagConstraints.NORTHWEST;
@@ -162,6 +165,11 @@ public class SmsBubble extends JPanel {
 		    triangle = new Polygon(xPoints, triangle_y_points, xPoints.length);
 	    }
   	    
+  	    //Set the maximum dimension of the bubble regarding the length of the text to display.
+  	    //This allows to get a better style for the bubble, avoiding having big bubble with small text inside.
+  	    pxTxtLength = lblMessage.getFontMetrics(fontTxt).stringWidth(messageText);
+  	    this.setMaximumSize(new Dimension(pxTxtLength+insetTxt.left+insetTxt.right, Integer.MAX_VALUE));
+  	    
   	    //FOR DEBUG
   	    //lblDate.setBorder(BorderFactory.createLineBorder(Color.black, 1));
   	    //lblMessage.setBorder(BorderFactory.createLineBorder(Color.black, 1));
@@ -179,14 +187,38 @@ public class SmsBubble extends JPanel {
 	public SmsBubble(BubbleDirection direction, String messageText) {
 		this(direction, messageText, "");
 	}
-	
+	static int COUNTER=0;
 	@Override
 	public void paintComponent(Graphics g) {
 		
+		
 		super.paintComponent(g);
+		
+		//Recompute maximum size:
+		Dimension dimPanel = this.getSize();
+		
+		//System.out.println(lblMessage.getPreferredSize());
+		//System.out.println(lblDate.getPreferredSize());
+		Dimension maxDim = new Dimension(pxTxtLength+insetTxt.left+insetTxt.right+10, 
+				lblMessage.getPreferredSize().height + lblDate.getPreferredSize().height+10); //Add 10px in order to have goor proportions
+		
+		this.setMaximumSize(maxDim);
+		this.setPreferredSize(maxDim);
+		
+		//Avoid the rectangle to grow if we reach the maximum size of the bubble.
+		if(dimPanel.height > maxDim.height)
+			dimPanel.height = maxDim.height;
+		
+		if(dimPanel.width > maxDim.width)
+			dimPanel.width = maxDim.width;
+		
+		//lblMessage.setMaximumSize(dimPanel);
+		//lblDate.setMaximumSize(dimPanel);
+		
+		
 
 		//Get dimensions to create a re-dimension relativeness bubble
-		Dimension dimPanel = this.getSize();
+		//Dimension dimPanel = this.getSize();
 		
 		//Create the rectangle bubble
 		RoundRectangle2D roundedRectangle;
@@ -212,6 +244,7 @@ public class SmsBubble extends JPanel {
 	    
 	    graphBubble.draw(triangle);
 	    graphBubble.fill(triangle);
+	    
 	    
 	    //FOR DEBUG
 	    //graphics2.setColor(Color.BLUE);
