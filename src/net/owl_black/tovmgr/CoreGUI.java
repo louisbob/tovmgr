@@ -15,19 +15,20 @@ import java.io.File;
  * 
  */
 
-public class CoreGUI  {
+public class CoreGUI extends JFrame {
     
-	/* Environment */
+	private static final long serialVersionUID = 1L;
 	
-		//User-interface objects declaration
-	    JPanel contactPanel, conversPanel;
-	    JFrame mainWindow;
-	    JMenuItem openAction;
-	    JMenuItem backupAction;
-	    JMenuItem settingsAction;
-	    JMenuItem exitAction;
-	    JMenuItem exportAction;
-	    JMenuItem cleanCharAction;
+	/* Environment */
+	//User-interface objects declaration
+    JPanel contactPanel, conversPanel;
+    JSplitPane splitPane;
+    JMenuItem openAction;
+    JMenuItem backupAction;
+    JMenuItem settingsAction;
+    JMenuItem exitAction;
+    JMenuItem exportAction;
+    JMenuItem cleanCharAction;
      
     /**
      *  Main method of the core. It has to be called to launch application.
@@ -42,21 +43,42 @@ public class CoreGUI  {
 	 */
 	public CoreGUI() {
         
-        //To get MS Windows look
+		super();
+		
+		//To get MS Windows look
+		
+		//Set basic properties
+		this.setTitle("The Owl VMG Reader");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
+        this.setSize(800, 500);
+        this.setLocationRelativeTo(null); //Center the window on the screen
         
-        /* Main window (frame) configuration */
-        mainWindow = new JFrame();
-        mainWindow.setTitle("The Owl VMG Reader");
+		//Create menu bar
+		createMenu();
 
-        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
-        mainWindow.setSize(800, 500);
-        mainWindow.setLocationRelativeTo(null); //Center the window on the screen
+		//Provide minimum sizes for the two components in the split pane
         
         /* Panel instantiation */ 
         contactPanel = new JPanel();
-        conversPanel = new JPanel();
+        conversPanel = new MessagePanel();
         
-        /* Menubar set-up */	
+  		//Create a split pane with the two scroll panes in it.
+  		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+  		                           contactPanel, conversPanel);
+  		splitPane.setOneTouchExpandable(true);
+  		splitPane.setDividerLocation(100);
+        
+        
+        //Create a new object contactGUI, that will fill the panel contactPanel with good informations
+        
+        //Place contactPanel and conversPanel into the main window
+  		this.add(splitPane);
+        this.setVisible(true);
+       
+    }
+	
+	private void createMenu() {
+		/* Menubar set-up */	
         JMenuBar menuBar = new JMenuBar(); // Creates a menubar for the mainWindow
         
         // Define and add two drop down menu to the menubar
@@ -68,7 +90,7 @@ public class CoreGUI  {
         menuBar.add(toolsMenu);
         menuBar.add(viewMenu);
         
-        mainWindow.setJMenuBar(menuBar); // Add the menubar to the frame
+        this.setJMenuBar(menuBar); // Add the menubar to the frame
         
         // Create and add simple menu item to one of the drop down menu
         openAction = new JMenuItem("Open VMG Files...");
@@ -96,15 +118,6 @@ public class CoreGUI  {
         viewMenu.add(copyAction);
         viewMenu.add(pasteAction);
         viewMenu.addSeparator();
-        
-        //Create a new object contactGUI, that will fill the panel contactPanel with good informations
-        
-        //Place contactPanel and conversPanel into the main window
-        mainWindow.setLayout(new BorderLayout());
-        mainWindow.add(contactPanel, BorderLayout.WEST);
-        mainWindow.add(conversPanel, BorderLayout.CENTER);
-        mainWindow.setVisible(true);
-       
-    }
+	}
 
 }

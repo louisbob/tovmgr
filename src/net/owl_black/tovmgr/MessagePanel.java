@@ -14,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.colorchooser.ColorSelectionModel;
 
 import net.owl_black.tovmgr.SmsBubble.BubbleDirection;
 
@@ -61,9 +62,10 @@ public class MessagePanel extends JPanel {
 		JPanel pan = new MessagePanel();
 		frame.add(pan);
 		frame.setVisible(true);
+		frame.revalidate();
 	}
 	
-	private void insertBubble(SmsBubble bub) {
+	private void insertBubble(SmsBubble bub, boolean lastOne) {
 		GridBagConstraints c = new GridBagConstraints();
 		
   	    c.gridx = 0;
@@ -71,6 +73,8 @@ public class MessagePanel extends JPanel {
 		c.ipady = 5;
 		c.weightx = 1.0;
 		c.weighty = 0.0;
+		if(lastOne)
+			c.gridheight = GridBagConstraints.RELATIVE;
 		
 		if(bub.getOrientation() == BubbleDirection.BBL_RECEIVED__RIGHT) {
 			c.anchor = GridBagConstraints.EAST;
@@ -94,26 +98,26 @@ public class MessagePanel extends JPanel {
 		row_number = 0;
 		
 		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "Lorem ipsum dolor sit amet, test test", "Dec 10 10:52");
-		insertBubble(bub);
+		insertBubble(bub, false);
 		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore", "Dec 10 10:52");
-		insertBubble(bub);
+		insertBubble(bub, false);
 		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "et dolore magna aliqua. Ut enim", "Dec 10 10:52");
-		insertBubble(bub);
+		insertBubble(bub, false);
 		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "occaecat", "Dec 10 10:52");
-		insertBubble(bub);
+		insertBubble(bub, false);
 		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "non proident, sunt in culpa qui officia deserunt", "Dec 10 10:52");
-		insertBubble(bub);
+		insertBubble(bub, false);
 		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT,"rud exercitation ullamco laboris nisi ut aliquip ex ea commodo c", "Dec 10 10:52");
-		insertBubble(bub);
+		insertBubble(bub, false);
 		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT,"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
 				+ "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
 				+ "aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat "
 				, "Dec 10 10:52");
-		insertBubble(bub);
+		insertBubble(bub, true);
 		
 		// Adding border with a title
-		TitledBorder title = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-				"Conversation");
+		TitledBorder title = new TitledBorder("Conversation");
+		title.setBorder(BorderFactory.createEmptyBorder());
 		title.setTitleJustification(TitledBorder.CENTER);
 		this.setBorder(title);
 		
@@ -121,6 +125,9 @@ public class MessagePanel extends JPanel {
 		JScrollPane scrollBar = new JScrollPane(subMessagePan);
 		scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollBar.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		//For DEBUG
+		//subMessagePan.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
 		this.add(scrollBar);
 	}
