@@ -1,0 +1,3 @@
+[submodule "libs/cjwizard"]
+	path = libs/cjwizard
+	url = https://github.com/cjwizard/cjwizard.git
