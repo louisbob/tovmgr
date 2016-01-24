@@ -1,12 +1,16 @@
 package net.owl_black.tovmgr;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
 
-import java.awt.*;
-import java.util.*;
-
-import java.io.File;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import net.owl_black.tovmgr.wizard.WizardGUI;
 
 /**
  * This class is the core of the OwlVMGReader application
@@ -15,7 +19,7 @@ import java.io.File;
  * 
  */
 
-public class CoreGUI extends JFrame {
+public class CoreGUI extends JFrame implements ActionListener {
     
 	private static final long serialVersionUID = 1L;
 	
@@ -29,13 +33,6 @@ public class CoreGUI extends JFrame {
     JMenuItem exitAction;
     JMenuItem exportAction;
     JMenuItem cleanCharAction;
-     
-    /**
-     *  Main method of the core. It has to be called to launch application.
-     */
-    public static void main(String[] args) {
-	     new CoreGUI();
-	}
 
 	/**
 	 * 	Constructor of the coreGUI class: set the look, instantiate all element of the user-interface,
@@ -46,6 +43,21 @@ public class CoreGUI extends JFrame {
 		super();
 		
 		//To get MS Windows look
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//Set basic properties
 		this.setTitle("The Owl VMG Reader");
@@ -73,8 +85,7 @@ public class CoreGUI extends JFrame {
         
         //Place contactPanel and conversPanel into the main window
   		this.add(splitPane);
-        this.setVisible(true);
-       
+        
     }
 	
 	private void createMenu() {
@@ -83,6 +94,7 @@ public class CoreGUI extends JFrame {
         
         // Define and add two drop down menu to the menubar
         JMenu fileMenu = new JMenu("File");
+        
         JMenu toolsMenu = new JMenu("Tools");
         JMenu viewMenu = new JMenu("View");
         
@@ -106,6 +118,7 @@ public class CoreGUI extends JFrame {
         JMenuItem pasteAction = new JMenuItem("Paste");
         
         fileMenu.add(openAction);
+        openAction.addActionListener(this);
         //fileMenu.add(backupAction);
         //fileMenu.add(settingsAction);
         fileMenu.addSeparator();
@@ -118,6 +131,29 @@ public class CoreGUI extends JFrame {
         viewMenu.add(copyAction);
         viewMenu.add(pasteAction);
         viewMenu.addSeparator();
+	}
+	
+	public void displayProcessingDialog() {
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object src = e.getSource();
+		
+		if(src == openAction) {
+			System.out.println("Open Wizard");
+			
+			WizardGUI wizard = new WizardGUI(this, true);
+			wizard.setLocationRelativeTo(null);
+			
+			//wizard.setModal(true);
+			wizard.setVisible(true);
+			
+		} else {
+			System.out.println("Error: can't recognize event.");
+		}
+		
 	}
 
 }

@@ -12,9 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.Scrollable;
-import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.colorchooser.ColorSelectionModel;
 
 import net.owl_black.tovmgr.SmsBubble.BubbleDirection;
 
@@ -65,7 +63,7 @@ public class MessagePanel extends JPanel {
 		frame.revalidate();
 	}
 	
-	private void insertBubble(SmsBubble bub, boolean lastOne) {
+	public void insertBubble(SmsBubble bub, boolean lastOne) {
 		GridBagConstraints c = new GridBagConstraints();
 		
   	    c.gridx = 0;
@@ -90,14 +88,13 @@ public class MessagePanel extends JPanel {
 	
 	public MessagePanel() {
 		
-		SmsBubble bub;
-		
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		subMessagePan = new ScrollablePanel();
 		subMessagePan.setLayout(new GridBagLayout());
 		row_number = 0;
 		
-		bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "Lorem ipsum dolor sit amet, test test", "Dec 10 10:52");
+		/*
+		SmsBubble bub = new SmsBubble(BubbleDirection.BBL_SENT__LEFT, "Lorem ipsum dolor sit amet, test test", "Dec 10 10:52");
 		insertBubble(bub, false);
 		bub = new SmsBubble(BubbleDirection.BBL_RECEIVED__RIGHT, "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore", "Dec 10 10:52");
 		insertBubble(bub, false);
@@ -113,7 +110,7 @@ public class MessagePanel extends JPanel {
 				+ "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut "
 				+ "aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat "
 				, "Dec 10 10:52");
-		insertBubble(bub, true);
+		insertBubble(bub, true);*/
 		
 		// Adding border with a title
 		TitledBorder title = new TitledBorder("Conversation");

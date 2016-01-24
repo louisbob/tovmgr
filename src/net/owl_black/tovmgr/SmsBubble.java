@@ -11,7 +11,6 @@ import java.awt.Insets;
 import java.awt.Polygon;
 import java.awt.geom.RoundRectangle2D;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
