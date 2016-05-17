@@ -1,6 +1,7 @@
 package net.owl_black.tovmgr;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -10,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
 import net.owl_black.tovmgr.wizard.WizardGUI;
 
 /**
@@ -19,7 +21,7 @@ import net.owl_black.tovmgr.wizard.WizardGUI;
  * 
  */
 
-public class CoreGUI extends JFrame implements ActionListener {
+public class CoreGUI extends JFrame implements ActionListener, ViewInterface {
     
 	private static final long serialVersionUID = 1L;
 	
@@ -71,7 +73,7 @@ public class CoreGUI extends JFrame implements ActionListener {
 		//Provide minimum sizes for the two components in the split pane
         
         /* Panel instantiation */ 
-        contactPanel = new JPanel();
+        contactPanel = new ContactPanel();
         conversPanel = new MessagePanel();
         
   		//Create a split pane with the two scroll panes in it.
@@ -85,6 +87,9 @@ public class CoreGUI extends JFrame implements ActionListener {
         
         //Place contactPanel and conversPanel into the main window
   		this.add(splitPane);
+  		
+  		//Register listener
+  		AppContext.getInstance().getVmgController().addModelChangedListener(this);
         
     }
 	
@@ -153,7 +158,20 @@ public class CoreGUI extends JFrame implements ActionListener {
 		} else {
 			System.out.println("Error: can't recognize event.");
 		}
+	}
+
+	@Override
+	public void vmgDatabaseUpdateAvailable() {
 		
+		System.out.println("Refreshing the view...");
+		
+		//Process all VMGs:
+		Visitor_UpdateContactView displayer = new Visitor_UpdateContactView();
+		displayer.processVmgDatabase(AppContext.getInstance().getVmgModel().vmgDatabase);
+		
+		((ContactPanel)contactPanel).setContactList(displayer.contactNames);
+		
+		System.out.println("Done!");
 	}
 
 }

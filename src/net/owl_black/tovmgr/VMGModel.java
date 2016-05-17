@@ -11,7 +11,7 @@ public class VMGModel {
 	ArrayList<File> inboxFiles;
 	ArrayList<File> outboxFiles;
 	ArrayList<VmgObj> vmgDatabase;
-	
+
 	private final Collection<ModelChangedListener> listeners = new ArrayList<ModelChangedListener>();
 	
 	public VMGModel() {
@@ -54,9 +54,33 @@ public class VMGModel {
 	}
 
 	//Getter and Setter
+	
+	// DATABASE
 	public ArrayList<VmgObj> getVmgDatabase() {
 		return vmgDatabase;
 	}
+
+	public void setVmgDatabase(ArrayList<VmgObj> vmgDatabase) {
+		this.vmgDatabase = vmgDatabase;
+		fireVmgDatabaseChanged();
+	}
+	
+	public void appendVmgDatabase(ArrayList<VmgObj> vmgDatabase) {
+		this.vmgDatabase.addAll(vmgDatabase);
+		fireVmgDatabaseChanged();
+	}
+	
+	public void removeVmgDatabase(ArrayList<VmgObj> vmgDatabase) {
+		this.vmgDatabase.removeAll(vmgDatabase); //TODO: check the behaviour of remove.
+		fireVmgDatabaseChanged();
+	}
+	
+	public void clearVmgDatabase() {
+		this.vmgDatabase.clear();
+		fireVmgDatabaseChanged();
+	}
+	
+	// INBOX FILES
 	public ArrayList<File> getInboxFiles() {
 		return inboxFiles;
 	}
@@ -72,6 +96,7 @@ public class VMGModel {
 		fireInboxFilesChanged();
 	}
 
+	// OUTBOX FILES
 	public ArrayList<File> getOutboxFiles() {
 		return outboxFiles;
 	}

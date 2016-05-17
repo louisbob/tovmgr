@@ -85,13 +85,14 @@ public class WizardGUI extends JDialog {
 
 			@Override
 			public void onFinished(List<WizardPage> path, WizardSettings settings) {
+				
+				WizardGUI.this.dispose();
+				
 				//Update the model:
 				ArrayList<File> inboxFiles = browsingPage.getInboxList();
 				if( (inboxFiles != null) && (inboxFiles.size() != 0) ) {
 					AppContext.getInstance().getVmgModel().setInboxFiles(inboxFiles);
 				}
-				
-				WizardGUI.this.dispose();
 			}
 
 			@Override
